@@ -29,10 +29,11 @@ class Interview{
 
   factory Interview.fromFireStore(Map<dynamic, dynamic> json){
     return Interview(
-      startTime : json["name"],
-      endTime : json["email_Id"],
-      admin : json["user_id"],
+      startTime : DateTime.fromMillisecondsSinceEpoch(json["start_time"]) ,
+      endTime : DateTime.fromMillisecondsSinceEpoch(json["end_time"]),
+      admin : json["admin"],
       interviewId: json["interview_id"],
+      participants: convertList(json["participants"])
     );
   }
 
@@ -52,5 +53,10 @@ class Interview{
   }
 }
 
-
+List<String> convertList(List<dynamic> participants){
+  List<String> ls = [];
+  participants.forEach((participant) {
+    ls.add(participant.toString());
+  });
+}
 

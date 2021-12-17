@@ -21,7 +21,7 @@ class User{
         name: json["name"],
         email_id :json["email_Id"],
         user_id: json["user_id"],
-        interviewIds: json["interview_id"],
+        interviewIds: convert(json["interviews"])
     );
   }
 
@@ -32,5 +32,12 @@ class User{
   String get user_id => _user_Id;
 
   List<String> get interviewIds => _interviewIds;
+
+
 }
 
+List<String> convert(List<dynamic> ids){
+  List<String> lst = [];
+  ids.forEach((id) { lst.add(id.toString());});
+  return lst;
+}
