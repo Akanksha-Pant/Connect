@@ -1,3 +1,5 @@
+import 'package:connect_app/Backend/DatabaseServices.dart';
+import 'package:connect_app/Models/Interview.dart';
 import 'package:connect_app/Models/User.dart';
 import 'package:connect_app/Utilities/AppUtilityFunctions.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +19,7 @@ class _BookInterviewState extends State<BookInterview> {
   TimeOfDay startTime;
   TimeOfDay endTime;
   List<User> participantList = [];
+  DatabaseServices dbServices = new DatabaseServices();
 
   _BookInterviewState({this.participantList});
   void getDatePicker(bool isStart){
@@ -71,7 +74,8 @@ class _BookInterviewState extends State<BookInterview> {
       ));
 
     }
-    print(AppUtilityFunctions().getInterviewId(startDateTime, endDateTime, "1a"));
+    String interviewId = AppUtilityFunctions().getInterviewId(startDateTime, endDateTime, "1a");
+    dbServices.addInterview(new Interview(startTime: startDateTime, endTime: endDateTime, interviewId: interviewId, admin: "1a"));
     print(startDateTime);
     print(endDateTime);
   }

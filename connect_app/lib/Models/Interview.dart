@@ -13,15 +13,16 @@ class Interview{
     this._endTime = endTime;
     this._admin = admin;
     this._interview_id = interviewId;
-    this._participants = participants;
+    this._participants = ["Megha", "Shubha","vanya"];
   }
 
   Map<String, dynamic> toJson (){
-    <String, dynamic>{
+    return <String, dynamic>{
       "start_time" : _start_time.millisecondsSinceEpoch,
       "end_time" : _endTime.millisecondsSinceEpoch,
       "admin" :  _admin,
       "interview_id" : _interview_id,
+      "participants" : _participants
     };
   }
 
@@ -45,6 +46,10 @@ class Interview{
   String get interview_id => _interview_id;
 
   List<String> get participants => _participants;
+
+  void setId(String interviewId){
+    _interview_id = interviewId;
+  }
 }
 
 
