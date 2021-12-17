@@ -1,3 +1,5 @@
+import 'package:connect_app/Models/User.dart';
+import 'package:connect_app/Utilities/AppUtilityFunctions.dart';
 import 'package:flutter/material.dart';
 
 
@@ -14,7 +16,9 @@ class _BookInterviewState extends State<BookInterview> {
   DateTime endDate;
   TimeOfDay startTime;
   TimeOfDay endTime;
+  List<User> participantList = [];
 
+  _BookInterviewState({this.participantList});
   void getDatePicker(bool isStart){
     showDatePicker(
         context: context,
@@ -67,6 +71,7 @@ class _BookInterviewState extends State<BookInterview> {
       ));
 
     }
+    print(AppUtilityFunctions().getInterviewId(startDateTime, endDateTime, "1a"));
     print(startDateTime);
     print(endDateTime);
   }
@@ -107,6 +112,7 @@ class _BookInterviewState extends State<BookInterview> {
                 IconButton(onPressed: (){getTimePicker(false);}, icon: Icon(Icons.access_time_outlined))
               ],
             ),
+            ElevatedButton(onPressed: (){}, child: Text("Add Participants")),
             ElevatedButton(onPressed: (){
               submit(startDate, endDate, startTime, endTime);
             }, child: Text("Submit"))

@@ -16,6 +16,16 @@ class Interview{
     this._participants = participants;
   }
 
+  Map<String, dynamic> toJson (){
+    <String, dynamic>{
+      "start_time" : _start_time.millisecondsSinceEpoch,
+      "end_time" : _endTime.millisecondsSinceEpoch,
+      "admin" :  _admin,
+      "interview_id" : _interview_id,
+    };
+  }
+
+
   factory Interview.fromFireStore(Map<dynamic, dynamic> json){
     return Interview(
       startTime : json["name"],
