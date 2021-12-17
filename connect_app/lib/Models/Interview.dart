@@ -13,7 +13,7 @@ class Interview{
     this._endTime = endTime;
     this._admin = admin;
     this._interview_id = interviewId;
-    this._participants = ["Megha", "Shubha","vanya"];
+    this._participants = participants;
   }
 
   Map<String, dynamic> toJson (){

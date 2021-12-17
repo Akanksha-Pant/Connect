@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connect_app/Backend/DatabaseServices.dart';
 import 'package:connect_app/Components/UserCard.dart';
 import 'package:connect_app/Screens/BookInterviewScreen.dart';
+import 'package:connect_app/Screens/UserListScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'Models/User.dart';
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: BookInterview(),
+      home: MyHomePage(),
     );
   }
 }
@@ -41,7 +42,14 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
-
+          children: [
+            ElevatedButton(onPressed: (){
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UserListScreen()),
+              );
+            }, child: Text("Create"))
+          ],
       ),
     );
   }

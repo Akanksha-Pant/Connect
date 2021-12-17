@@ -7,7 +7,7 @@ class DatabaseServices{
   final CollectionReference collection = FirebaseFirestore.instance.collection("Users");
   final CollectionReference interviewCollection = FirebaseFirestore.instance.collection("Interviews");
 
-  Stream<QuerySnapshot> getUsers(){
+  Stream<QuerySnapshot> getUsers() {
     return collection.snapshots();
   }
 

@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 
 class BookInterview extends StatefulWidget {
   @override
-  _BookInterviewState createState() => _BookInterviewState();
+   List<String> selectedUsers  = [];
+   BookInterview({this.selectedUsers});
+  _BookInterviewState createState() => _BookInterviewState(participantList: selectedUsers);
 }
 
 class _BookInterviewState extends State<BookInterview> {
@@ -18,7 +20,7 @@ class _BookInterviewState extends State<BookInterview> {
   DateTime endDate;
   TimeOfDay startTime;
   TimeOfDay endTime;
-  List<User> participantList = [];
+  List<String> participantList = [];
   DatabaseServices dbServices = new DatabaseServices();
 
   _BookInterviewState({this.participantList});
@@ -75,7 +77,7 @@ class _BookInterviewState extends State<BookInterview> {
 
     }
     String interviewId = AppUtilityFunctions().getInterviewId(startDateTime, endDateTime, "1a");
-    dbServices.addInterview(new Interview(startTime: startDateTime, endTime: endDateTime, interviewId: interviewId, admin: "1a"));
+    dbServices.addInterview(new Interview(startTime: startDateTime, endTime: endDateTime, interviewId: interviewId, admin: "1a", participants: participantList));
     print(startDateTime);
     print(endDateTime);
   }

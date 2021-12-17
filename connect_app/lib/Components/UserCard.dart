@@ -7,8 +7,8 @@ class UserCard extends StatelessWidget {
   User user;
   UserCard(this.user);
   Widget build(BuildContext context) {
-    return Container(
-      child: Text(user.name),
+    return ListTile(
+      title: Text(user.name),
     );
   }
 }
