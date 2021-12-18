@@ -1,6 +1,9 @@
 import 'package:connect_app/Backend/DatabaseServices.dart';
+import 'package:connect_app/Backend/Exceptions/IntervieweeBusyException.dart';
+import 'package:connect_app/Backend/Exceptions/RequiredLengthNotFound.dart';
 import 'package:connect_app/Models/Interview.dart';
 import 'package:connect_app/Models/User.dart';
+import 'package:connect_app/Utilities/AppStrings.dart';
 import 'package:connect_app/Utilities/AppUtilityFunctions.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_select_flutter/dialog/mult_select_dialog.dart';
@@ -23,7 +26,7 @@ class _BookInterviewState extends State<BookInterview> {
   List<String> participantList = [];
   DatabaseServices dbServices = new DatabaseServices();
   List<User> ls = [];
-
+  String title = "";
 
   void getDatePicker(bool isStart){
     showDatePicker(
@@ -64,6 +67,14 @@ class _BookInterviewState extends State<BookInterview> {
         ls = value;
       });
     });
+    User toBeRemoved;
+    for(var user in ls){
+      if(user.user_id == AppStrings().ADMIN_USER_ID){
+        toBeRemoved = user;
+      }
+    }
+    ls.remove(toBeRemoved);
+    participantList.clear();
     await showDialog(context: context, builder:(ctx){
       return MultiSelectDialog(items: ls.map((e) => MultiSelectItem(e, e.name)).toList(),onConfirm: (values){
         values.forEach((value) { participantList.add(value.user_id);});
@@ -93,9 +104,45 @@ class _BookInterviewState extends State<BookInterview> {
 
     }
     else{
-      String interviewId = AppUtilityFunctions().getInterviewId(startDateTime, endDateTime, "1a");
-      dbServices.addInterview(new Interview(startTime: startDateTime, endTime: endDateTime, interviewId: interviewId, admin: "1a", participants: participantList));
-      Navigator.of(context).pop();
+      bool canBeBooked = true;
+      if(!participantList.contains(AppStrings().ADMIN_USER_ID)){
+        participantList.add(AppStrings().ADMIN_USER_ID);
+      }
+      print(participantList);
+      String error = "";
+      Interview interview = new Interview(startTime: startDateTime, endTime: endDateTime, interviewId: "",
+          admin: AppStrings().ADMIN_USER_ID, participants: participantList, title: title);
+      try{
+        await dbServices.check(interview);
+      } on RequiredLengthNotFound catch(e){
+        canBeBooked = false;
+        error = e.errMsg();
+        print(error);
+      } on IntervieweeBusyException catch(e){
+        canBeBooked = false;
+        error = e.errMsg();
+        print(e.errMsg());
+      }
+      finally{
+        if(canBeBooked){
+          await dbServices.addInterview(interview);
+          showDialog(context: context, builder: (ctx){
+            return AlertDialog(
+              title: Text("Success"),
+              content: Text("Interview successfully scheduled"),
+            );
+          });
+        }
+        else{
+          showDialog(context: context, builder: (ctx){
+            return AlertDialog(
+              title: Text("Interview can't be scheduled"),
+              content: Text(error),
+            );
+          });
+        }
+      }
+      print(canBeBooked);
     }
 
 
@@ -139,6 +186,19 @@ class _BookInterviewState extends State<BookInterview> {
                 IconButton(onPressed: (){getTimePicker(false);}, icon: Icon(Icons.access_time_outlined))
               ],
             ),
+            Row(children: [
+              Text("Title:  "),
+              Container(
+                width: 100,
+                child:   TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      this.title = value;
+                    });
+                  },
+                ),
+              )
+            ],),
             ElevatedButton(onPressed: (){
               //print(participantList);
               getContactPicker();

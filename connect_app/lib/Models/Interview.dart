@@ -6,14 +6,16 @@ class Interview{
   DateTime _endTime;
   String _admin;
   String _interview_id;
+  String _title;
   List<String> _participants = <String>[];
 
-  Interview({DateTime startTime, DateTime endTime, String admin, String interviewId, List<String> participants}){
+  Interview({DateTime startTime, DateTime endTime, String admin, String interviewId, List<String> participants,String title}){
     this._start_time = startTime;
     this._endTime = endTime;
     this._admin = admin;
     this._interview_id = interviewId;
     this._participants = participants;
+    this._title = title;
   }
 
   Map<String, dynamic> toJson (){
@@ -22,7 +24,8 @@ class Interview{
       "end_time" : _endTime.millisecondsSinceEpoch,
       "admin" :  _admin,
       "interview_id" : _interview_id,
-      "participants" : _participants
+      "participants" : _participants,
+      "title" : _title
     };
   }
 
@@ -33,7 +36,8 @@ class Interview{
       endTime : DateTime.fromMillisecondsSinceEpoch(json["end_time"]),
       admin : json["admin"],
       interviewId: json["interview_id"],
-      participants: convertList(json["participants"])
+      participants: convertList(json["participants"]),
+      title: json["title"],
     );
   }
 
@@ -48,8 +52,13 @@ class Interview{
 
   List<String> get participants => _participants;
 
+  String get title => _title;
+
   void setId(String interviewId){
     _interview_id = interviewId;
+  }
+  void setParticipants(List<String> participants){
+    _participants = participants;
   }
 }
 
@@ -58,5 +67,6 @@ List<String> convertList(List<dynamic> participants){
   participants.forEach((participant) {
     ls.add(participant.toString());
   });
+  return ls;
 }
 

@@ -1,4 +1,5 @@
 import 'package:connect_app/Screens/BookInterviewScreen.dart';
+import 'package:connect_app/Screens/ViewInterviews.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -24,7 +25,7 @@ class _HomePageState extends State<HomePage> {
           ),
           body: TabBarView(children:
           [
-            Container(),
+            ViewInterviewScreen(),
             BookInterview(),
           ]),
         ),
