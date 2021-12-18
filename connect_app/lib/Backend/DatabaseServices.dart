@@ -13,44 +13,61 @@ class DatabaseServices{
   }
 
   Future<void> addInterview(Interview interview) async{
-    check(interview);
+    await check(interview);
     await interviewCollection.add(interview.toJson()).then((value) => (
-        updateInterview(value.id.toString(), interview)
+        updateInterviewId(value.id.toString(), interview)
     ));
     interview.participants.forEach((participant) {
       addInterviewIdToUserCollection(interview.interview_id, participant);
     });
   }
   
-  Future<void> updateInterview(String docRef, Interview interview) async{
+  Future<void> updateInterviewId(String docRef, Interview interview) async{
     interview.setId(docRef);
     await interviewCollection.doc(docRef).update(interview.toJson());
   }
 
-  Stream<QuerySnapshot> getInterviews(){
-    return interviewCollection.snapshots();
+
+  List<Interview> getInterviews(String userId){
+    List<Interview> interviewList = [];
+    collection.doc(userId).get().then((value) {
+      User currentUser = new User.fromFireStore(value.data());
+      currentUser.interviewIds.forEach((interviewId) {
+        interviewCollection.doc(interviewId).get().then((interview) {
+          interviewList.add(new Interview.fromFireStore(interview.data()));
+        });
+      });
+    });
+    return interviewList;
   }
 
-  void check(Interview interview){
-    print("hello world");
+  void check(Interview interview) async {
     interview.participants.forEach((participant) {
+      print("yessssssss");
       collection.doc(participant).get().then((value) {
+        print(value.data());
         User user = User.fromFireStore(value.data());
         user.interviewIds.forEach((interviewId) {
           interviewCollection.doc(interviewId).get().then((value){
             Interview schedulledInterview = new Interview.fromFireStore(value.data());
-            if(AppUtilityFunctions().intersects(interview.start_time, schedulledInterview.start_time, interview.start_time, schedulledInterview.end_time)){
+            if(AppUtilityFunctions().intersects(interview.start_time, schedulledInterview.start_time, interview.end_time, schedulledInterview.end_time)){
               print("OOpppsss...looks like your friend already has an interview scheduled");
             }
-            print(schedulledInterview.interview_id);
-            print(schedulledInterview.end_time);
           });
         });
       });
     });
   }
 
-
+  Future<List<User>> getDummyUser() async{
+    List<User> userList = [];
+    await collection.get().then((value) => {
+      value.docs.forEach((user) {
+        userList.add(new User.fromFireStore(user.data()));
+      })
+    });
+    return userList;
+  }
   Future<void> addInterviewIdToUserCollection(String interviewId, String userId){
     collection.doc(userId).update({"interviews" : FieldValue.arrayUnion([interviewId])});
   }
