@@ -7,14 +7,41 @@ import 'package:connect_app/Utilities/AppUtilityFunctions.dart';
 
 class DatabaseServices{
 
-  final CollectionReference collection = FirebaseFirestore.instance.collection("Users");
+  final CollectionReference userCollection = FirebaseFirestore.instance.collection("Users");
   final CollectionReference interviewCollection = FirebaseFirestore.instance.collection("Interviews");
 
-  Stream<QuerySnapshot> getUsers() {
-    return collection.snapshots();
+  //USER RELATED QUERIES
+
+  //GETTING LIST OF EXISTING USERS FROM DATABASE
+  Future<List<User>> getUserList() async{
+    List<User> userList = [];
+    await userCollection.get().then((value) => {
+      value.docs.forEach((user) {
+        userList.add(new User.fromFireStore(user.data()));
+      })
+    });
+    return userList;
   }
 
 
+  //GETTING A USER IF USER ID IS PROVIDED
+  Future<User> getUserbyId(String userId) async{
+    User user ;
+    await userCollection.doc(userId).get().then((value) {
+      user = User.fromFireStore(value.data());
+    });
+    return user;
+  }
+
+  //ADDING NEWLY CREATED INTERVIEW TO THE PARTICIPANT WHO WILL BE A PART OF THIS INTERVIEW
+  Future<void> addInterviewIdToUserCollection(String interviewId, String userId){
+    userCollection.doc(userId).update({"interviews" : FieldValue.arrayUnion([interviewId])});
+  }
+
+
+  //QUERIES RELATED TO INTERVIEW
+
+  //ADDING A NEW INTERVIEW
   Future<void> addInterview(Interview interview) async{
 
     await interviewCollection.add(interview.toJson()).then((value) => (
@@ -24,18 +51,19 @@ class DatabaseServices{
       addInterviewIdToUserCollection(interview.interview_id, participant);
     });
   }
-  
+
+  // UPDATING ID OF THE EXISTING INYTERVIEW
   Future<void> updateInterviewId(String docRef, Interview interview) async{
     interview.setId(docRef);
     await interviewCollection.doc(docRef).update(interview.toJson());
   }
 
-
+  // GETTING LIST OF INTERVIEWS THAT ARE ALREADY SCHEDULED BY THE ADMIN
   Future<List<Interview>> getInterviews(String userId) async{
     List<String > interviewIds = [];
     List<Interview>  interviews = [];
 
-    await collection.doc(userId).get().then((value){
+    await userCollection.doc(userId).get().then((value){
       User user = new User.fromFireStore(value.data());
       interviewIds = user.interviewIds;
     });
@@ -49,25 +77,32 @@ class DatabaseServices{
     return interviews;
   }
 
+
+
+  // QUERIES TO UPDATE INTERVIEWS
+
+  //ADDING NEW PARTICIPANTS TO AN EXISTING INTERVIEW
   Future<void> addNewParticipants(Interview interview, List<String> newParticipants) async{
     Interview newInterview = interview;
     newInterview.setParticipants(newParticipants);
     await check(newInterview);
 
     for(String participant in newParticipants){
-      collection.doc(participant).update({"interviews" : FieldValue.arrayUnion([interview.interview_id])});
+      userCollection.doc(participant).update({"interviews" : FieldValue.arrayUnion([interview.interview_id])});
     }
 
     interviewCollection.doc(interview.interview_id).update({"participants" : FieldValue.arrayUnion(interview.participants)});
   }
 
+  //REMOVING EXISTING PARTICIPANTS FROM INTERVIEW
   Future<void> removeParticipants(Interview interview, List<String> participantsToBeRemoved){
     interviewCollection.doc(interview.interview_id).update({"participants" : FieldValue.arrayRemove(participantsToBeRemoved)});
     participantsToBeRemoved.forEach((participantId) {
-      collection.doc(participantId).update({"interviews" : FieldValue.arrayRemove([interview.interview_id])});
+      userCollection.doc(participantId).update({"interviews" : FieldValue.arrayRemove([interview.interview_id])});
     });
   }
 
+  //CHANGING TIMINGS OF THE INTERVIEW
   Future<void> updateTimings(Interview interview, DateTime startTime, DateTime endTime){
     check(interview);
     interviewCollection.doc(interview.interview_id).update({"start_time" : startTime.millisecondsSinceEpoch, "end_time" : endTime.millisecondsSinceEpoch});
@@ -75,11 +110,11 @@ class DatabaseServices{
 
   }
 
-
+  //CHECKING IF THE PARTICIPANT ALREADY HAS A MEETING SCHEDULED
   Future<void> check(Interview interview) async {
     List<User> users = [];
     for(var participant in interview.participants){
-      await collection.doc(participant).get().then((value) {
+      await userCollection.doc(participant).get().then((value) {
         User user = new User.fromFireStore(value.data());
         users.add(user);
       });
@@ -100,26 +135,6 @@ class DatabaseServices{
     }
   }
 
-  Future<List<User>> getDummyUser() async{
-    List<User> userList = [];
-    await collection.get().then((value) => {
-      value.docs.forEach((user) {
-        userList.add(new User.fromFireStore(user.data()));
-      })
-    });
-    return userList;
-  }
 
-  Future<void> addInterviewIdToUserCollection(String interviewId, String userId){
-    collection.doc(userId).update({"interviews" : FieldValue.arrayUnion([interviewId])});
-  }
-
-  Future<User> getUserbyId(String userId) async{
-    User user ;
-    await collection.doc(userId).get().then((value) {
-      user = User.fromFireStore(value.data());
-    });
-    return user;
-  }
 
 }

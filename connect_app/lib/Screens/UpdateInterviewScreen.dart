@@ -30,7 +30,7 @@ class _UpdateInterviewPageState extends State<UpdateInterviewPage> {
   DateTime startDateTime;
   DateTime endDateTime;
   void findNewParticipants() async {
-    await dbServices.getDummyUser().then((value) {
+    await dbServices.getUserList().then((value) {
       setState(() {
         users = value;
       });

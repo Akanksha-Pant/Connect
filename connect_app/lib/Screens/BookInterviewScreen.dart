@@ -64,7 +64,7 @@ class _BookInterviewState extends State<BookInterview> {
 
   void getContactPicker() async{
 
-    await dbServices.getDummyUser().then((value) {
+    await dbServices.getUserList().then((value) {
       setState(() {
         ls = value;
       });
