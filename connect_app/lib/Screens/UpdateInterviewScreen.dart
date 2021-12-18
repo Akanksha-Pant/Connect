@@ -86,7 +86,10 @@ class _UpdateInterviewPageState extends State<UpdateInterviewPage> {
   }
 
   void deleteParticipants() async {
-    List<String> currentParticipantsId = interview.participants;
+    List<String> currentParticipantsId;
+    await dbServices.getInterviewById(interview.interview_id).then((value) {
+      currentParticipantsId = value.participants;
+    });
     List<User> currentParticipants = [];
     List<String> toBeRemoved = [];
     for (String id in currentParticipantsId) {
@@ -106,9 +109,14 @@ class _UpdateInterviewPageState extends State<UpdateInterviewPage> {
                 toBeRemoved.add(value.user_id);
               });
               bool isUpdated = false;
-              String Error = "";
+              String Error = "Items deleted SucessFully";
+
               try {
-                await dbServices.removeParticipants(interview, toBeRemoved);
+                Interview currNewinterview;
+                await dbServices.getInterviewById(interview.interview_id).then((value) {
+                  currNewinterview = value;
+                });
+                await dbServices.removeParticipants(currNewinterview, toBeRemoved);
               }
               catch(e){
                 Error = e.errMsg();
