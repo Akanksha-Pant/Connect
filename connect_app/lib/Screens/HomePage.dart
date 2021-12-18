@@ -15,18 +15,20 @@ class _HomePageState extends State<HomePage> {
         length: 2,
         child: Scaffold(
           appBar: AppBar(
+
             bottom: const TabBar(
               tabs: [
-                Tab(icon: Icon(Icons.calendar_today)),
                 Tab(icon: Icon(Icons.timer)),
+                Tab(icon: Icon(Icons.calendar_today)),
               ],
             ),
             title: const Text('Connect'),
           ),
           body: TabBarView(children:
           [
-            ViewInterviewScreen(),
             BookInterview(),
+            ViewInterviewScreen(),
+
           ]),
         ),
       ),

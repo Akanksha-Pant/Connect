@@ -1,7 +1,9 @@
 import 'package:connect_app/Backend/DatabaseServices.dart';
+import 'package:connect_app/Components/InterviewCard.dart';
 import 'package:connect_app/Models/Interview.dart';
 import 'package:connect_app/Screens/UpdateInterviewScreen.dart';
 import 'package:connect_app/Utilities/AppStrings.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ViewInterviewScreen extends StatefulWidget {
@@ -42,16 +44,3 @@ class _ViewInterviewScreenState extends State<ViewInterviewScreen> {
 
 
 
-class InterviewCard extends StatelessWidget {
-  Interview interview;
-  InterviewCard(this.interview);
-  @override
-  Widget build(BuildContext context) {
-    return Container(child:  ElevatedButton(onPressed: (){
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => UpdateInterviewPage(interview)),
-      );
-    },child: Text(interview.title),),);
-  }
-}

@@ -1,10 +1,12 @@
 import 'package:connect_app/Backend/DatabaseServices.dart';
 import 'package:connect_app/Backend/Exceptions/IntervieweeBusyException.dart';
 import 'package:connect_app/Backend/Exceptions/RequiredLengthNotFound.dart';
+import 'package:connect_app/Components/BookInterviewHeader.dart';
 import 'package:connect_app/Models/Interview.dart';
 import 'package:connect_app/Models/User.dart';
 import 'package:connect_app/Utilities/AppStrings.dart';
 import 'package:connect_app/Utilities/AppUtilityFunctions.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_select_flutter/dialog/mult_select_dialog.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
@@ -151,10 +153,21 @@ class _BookInterviewState extends State<BookInterview> {
   }
   Widget build(BuildContext context) {
     return Container(
+      color: Colors.white,
+      margin: EdgeInsets.all(10),
       child:  SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Schedule an Interview", style:  TextStyle(fontSize: 30, fontWeight: FontWeight.bold),textAlign: TextAlign.center,)
+              ],
+            ),
+            PageHeader("assets/interview.png", false),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(child:  Text("Start Date"),),
                 Container(child:  Container(child: Text( startDate == null ? "" : startDate.toString(),),),),
@@ -164,6 +177,7 @@ class _BookInterviewState extends State<BookInterview> {
               ],
             ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(child:  Text("Start time"),),
                 Container(child:  Container(child : Text(startTime == null ? "" : startTime.toString())),),
@@ -171,6 +185,7 @@ class _BookInterviewState extends State<BookInterview> {
               ],
             ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(child:  Text("End Date"),),
                 Container(child:  Container(
@@ -180,16 +195,20 @@ class _BookInterviewState extends State<BookInterview> {
               ],
             ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(child:  Text("End time"),),
                 Container(child:  Container(child : Text(endTime == null ? "" : endTime.toString())),),
                 IconButton(onPressed: (){getTimePicker(false);}, icon: Icon(Icons.access_time_outlined))
               ],
             ),
-            Row(children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
               Text("Title:  "),
+              SizedBox(width: 100,),
               Container(
-                width: 100,
+                width: 140,
                 child:   TextField(
                   onChanged: (value) {
                     setState(() {

@@ -1,7 +1,9 @@
 import 'package:connect_app/Backend/DatabaseServices.dart';
+import 'package:connect_app/Components/BookInterviewHeader.dart';
 import 'package:connect_app/Models/Interview.dart';
 import 'package:connect_app/Models/User.dart';
 import 'package:connect_app/Utilities/AppUtilityFunctions.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_select_flutter/dialog/mult_select_dialog.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
@@ -129,7 +131,9 @@ class _UpdateInterviewPageState extends State<UpdateInterviewPage> {
       appBar: AppBar(title: Text("Update Interviews"),),
       body: ListView(
         children: [
+          PageHeader("assets/ListHeader.png", true),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
                 child: Text("Start Date"),
@@ -149,6 +153,7 @@ class _UpdateInterviewPageState extends State<UpdateInterviewPage> {
             ],
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
                 child: Text("Start time"),
@@ -165,6 +170,7 @@ class _UpdateInterviewPageState extends State<UpdateInterviewPage> {
             ],
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
                 child: Text("End Date"),
@@ -183,6 +189,7 @@ class _UpdateInterviewPageState extends State<UpdateInterviewPage> {
             ],
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
                 child: Text("End time"),
@@ -199,6 +206,7 @@ class _UpdateInterviewPageState extends State<UpdateInterviewPage> {
             ],
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               ElevatedButton(
                   onPressed: () {
@@ -213,6 +221,7 @@ class _UpdateInterviewPageState extends State<UpdateInterviewPage> {
             ],
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               ElevatedButton(onPressed: (){changeTimings();}, child: Text("Change Timing"))
             ],
