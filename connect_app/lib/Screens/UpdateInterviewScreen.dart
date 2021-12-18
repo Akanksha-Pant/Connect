@@ -21,23 +21,29 @@ class _UpdateInterviewPageState extends State<UpdateInterviewPage> {
   _UpdateInterviewPageState(this.interview);
   DatabaseServices dbServices = new DatabaseServices();
   List<User> users = [];
-  List<User> newUsers = [];
-  List<String> newParticipants = [];
+
   DateTime startDate;
   DateTime endDate;
   TimeOfDay startTime;
   TimeOfDay endTime;
   DateTime startDateTime;
   DateTime endDateTime;
+
+
   void findNewParticipants() async {
+    List<User> newUsers = [];
+    List<String> newParticipants = [];
+    Interview currInterviewStatus;
+    await dbServices.getInterviewById(interview.interview_id).then((value) {
+      currInterviewStatus = value;
+    });
     await dbServices.getUserList().then((value) {
       setState(() {
         users = value;
       });
     });
     for (var user in users) {
-      print(interview.interview_id);
-      if (!interview.participants.contains(user.user_id)) {
+      if (!currInterviewStatus.participants.contains(user.user_id)) {
         newUsers.add(user);
       }
     }
@@ -51,14 +57,32 @@ class _UpdateInterviewPageState extends State<UpdateInterviewPage> {
               values.forEach((value) {
                 newParticipants.add(value.user_id);
               });
-              addNewParticipant();
+              addNewParticipant(newParticipants);
             },
           );
         });
   }
 
-  void addNewParticipant() async {
-    await dbServices.addNewParticipants(interview, newParticipants);
+  void addNewParticipant(List<String> newParticipants) async {
+    String error = "";
+    bool isUpdated = true;
+    try{
+      await dbServices.check(interview, true);
+    }catch(e){
+      isUpdated = false;
+      error = e;
+    }
+    finally{
+      if(isUpdated){
+        await dbServices.addNewParticipants(interview, newParticipants);
+      }else{
+        showDialog(context: context, builder: (ctx){
+          return AlertDialog(content: Text(error),);
+        });
+      }
+
+    }
+
   }
 
   void deleteParticipants() async {
@@ -77,22 +101,54 @@ class _UpdateInterviewPageState extends State<UpdateInterviewPage> {
             items: currentParticipants
                 .map((e) => MultiSelectItem(e, e.name))
                 .toList(),
-            onConfirm: (values) {
+            onConfirm: (values) async{
               values.forEach((value) {
                 toBeRemoved.add(value.user_id);
               });
-              dbServices.removeParticipants(interview, toBeRemoved);
+              bool isUpdated = false;
+              String Error = "";
+              try {
+                await dbServices.removeParticipants(interview, toBeRemoved);
+              }
+              catch(e){
+                Error = e.errMsg();
+              }
+              finally{
+                showDialog(context: context, builder: (ctx){
+                  return AlertDialog(content: Text(Error),);
+                });
+              }
             },
           );
         });
   }
 
-  void changeTimings(){
+  void changeTimings() async{
     setState(() {
       startDateTime = new DateTime(startDate.year, startDate.month, startDate.day, startTime.hour, startTime.minute);
       endDateTime = new DateTime(endDate.year, endDate.month, endDate.day, endTime.hour, endTime.minute);
     });
-    dbServices.updateTimings(interview, startDateTime, endDateTime);
+    String error = "";
+    bool isUpdating = true;
+    try{
+      await dbServices.check(interview, true);
+    } catch(e){
+      error = e.errMsg();
+      isUpdating = false;
+    }
+    finally{
+      if(isUpdating){
+        await dbServices.updateTimings(interview, startDateTime, endDateTime);
+      }
+      else{
+        showDialog(context: context, builder: (ctx){
+          return AlertDialog(
+            content: Text(error),
+          );
+        });
+      }
+    }
+
   }
 
   void getDatePicker(bool isStart) {
@@ -100,7 +156,7 @@ class _UpdateInterviewPageState extends State<UpdateInterviewPage> {
             context: context,
             initialDate: DateTime.now(),
             firstDate: DateTime.now(),
-            lastDate: DateTime(2022))
+            lastDate: DateTime(2023))
         .then((date) {
       setState(() {
         if (isStart) {
@@ -141,7 +197,7 @@ class _UpdateInterviewPageState extends State<UpdateInterviewPage> {
               Container(
                 child: Container(
                   child: Text(
-                    startDate == null ? "" : startDate.toString(),
+                      startDate == null ? "" : startDate.day.toString() + "-" + startDate.month.toString() + "-" + startDate.year.toString()
                   ),
                 ),
               ),
@@ -160,7 +216,7 @@ class _UpdateInterviewPageState extends State<UpdateInterviewPage> {
               ),
               Container(
                 child: Container(
-                    child: Text(startTime == null ? "" : startTime.toString())),
+                    child:  Text(startTime == null ? "" : startTime.hour.toString() + " : " + startTime.minute.toString())),
               ),
               IconButton(
                   onPressed: () {
@@ -178,7 +234,7 @@ class _UpdateInterviewPageState extends State<UpdateInterviewPage> {
               Container(
                 child: Container(
                     child: Text(
-                  endDate == null ? "" : endDate.toString(),
+                        endDate == null ? "" : endDate.day.toString() + "-" + endDate.month.toString() + "-" + endDate.year.toString()
                 )),
               ),
               IconButton(
@@ -196,7 +252,7 @@ class _UpdateInterviewPageState extends State<UpdateInterviewPage> {
               ),
               Container(
                 child: Container(
-                    child: Text(endTime == null ? "" : endTime.toString())),
+                    child:  Text(endTime == null ? "" : endTime.hour.toString() + " : " + endTime.minute.toString())),
               ),
               IconButton(
                   onPressed: () {

@@ -115,7 +115,7 @@ class _BookInterviewState extends State<BookInterview> {
       Interview interview = new Interview(startTime: startDateTime, endTime: endDateTime, interviewId: "",
           admin: AppStrings().ADMIN_USER_ID, participants: participantList, title: title);
       try{
-        await dbServices.check(interview);
+        await dbServices.check(interview, false);
       } on RequiredLengthNotFound catch(e){
         canBeBooked = false;
         error = e.errMsg();
@@ -144,12 +144,7 @@ class _BookInterviewState extends State<BookInterview> {
           });
         }
       }
-      print(canBeBooked);
     }
-
-
-    print(startDateTime);
-    print(endDateTime);
   }
   Widget build(BuildContext context) {
     return Container(
@@ -170,7 +165,7 @@ class _BookInterviewState extends State<BookInterview> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(child:  Text("Start Date"),),
-                Container(child:  Container(child: Text( startDate == null ? "" : startDate.toString(),),),),
+                Container(child:  Container(child: Text( startDate == null ? "" : startDate.day.toString() + "-" + startDate.month.toString() + "-" + startDate.year.toString(),),),),
                 IconButton(onPressed: (){
                   getDatePicker(true);
                 }, icon: Icon(Icons.calendar_today_rounded))
@@ -180,7 +175,7 @@ class _BookInterviewState extends State<BookInterview> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(child:  Text("Start time"),),
-                Container(child:  Container(child : Text(startTime == null ? "" : startTime.toString())),),
+                Container(child:  Container(child : Text(startTime == null ? "" : startTime.hour.toString() + " : " + startTime.minute.toString())),),
                 IconButton(onPressed: (){getTimePicker(true);}, icon: Icon(Icons.access_time_outlined))
               ],
             ),
@@ -189,7 +184,7 @@ class _BookInterviewState extends State<BookInterview> {
               children: [
                 Container(child:  Text("End Date"),),
                 Container(child:  Container(
-                    child: Text( endDate == null ? "" : endDate.toString(),)
+                    child: Text( endDate == null ? "" : endDate.day.toString() + "-" + endDate.month.toString() + "-" + endDate.year.toString(),)
                 ),),
                 IconButton(onPressed: (){getDatePicker(false);}, icon: Icon(Icons.calendar_today_rounded))
               ],
@@ -198,7 +193,7 @@ class _BookInterviewState extends State<BookInterview> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(child:  Text("End time"),),
-                Container(child:  Container(child : Text(endTime == null ? "" : endTime.toString())),),
+                Container(child:  Container(child : Text(endTime == null ? "" : endTime.hour.toString() + " : " + endTime.minute.toString())),),
                 IconButton(onPressed: (){getTimePicker(false);}, icon: Icon(Icons.access_time_outlined))
               ],
             ),

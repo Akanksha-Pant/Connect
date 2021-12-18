@@ -77,7 +77,13 @@ class DatabaseServices{
     return interviews;
   }
 
-
+  Future<Interview> getInterviewById(String interviewId) async{
+    Interview interview;
+    await interviewCollection.doc(interviewId).get().then((value) {
+      interview = new Interview.fromFireStore(value.data());
+    });
+    return interview;
+  }
 
   // QUERIES TO UPDATE INTERVIEWS
 
@@ -85,7 +91,7 @@ class DatabaseServices{
   Future<void> addNewParticipants(Interview interview, List<String> newParticipants) async{
     Interview newInterview = interview;
     newInterview.setParticipants(newParticipants);
-    await check(newInterview);
+    await check(newInterview, true);
 
     for(String participant in newParticipants){
       userCollection.doc(participant).update({"interviews" : FieldValue.arrayUnion([interview.interview_id])});
@@ -96,6 +102,9 @@ class DatabaseServices{
 
   //REMOVING EXISTING PARTICIPANTS FROM INTERVIEW
   Future<void> removeParticipants(Interview interview, List<String> participantsToBeRemoved){
+    if(interview.participants.length - participantsToBeRemoved.length <= 3){
+      throw RequiredLengthNotFound();
+    }
     interviewCollection.doc(interview.interview_id).update({"participants" : FieldValue.arrayRemove(participantsToBeRemoved)});
     participantsToBeRemoved.forEach((participantId) {
       userCollection.doc(participantId).update({"interviews" : FieldValue.arrayRemove([interview.interview_id])});
@@ -104,14 +113,13 @@ class DatabaseServices{
 
   //CHANGING TIMINGS OF THE INTERVIEW
   Future<void> updateTimings(Interview interview, DateTime startTime, DateTime endTime){
-    check(interview);
     interviewCollection.doc(interview.interview_id).update({"start_time" : startTime.millisecondsSinceEpoch, "end_time" : endTime.millisecondsSinceEpoch});
     print("Timings updated Successfully");
 
   }
 
   //CHECKING IF THE PARTICIPANT ALREADY HAS A MEETING SCHEDULED
-  Future<void> check(Interview interview) async {
+  Future<void> check(Interview interview, bool isUpdating) async {
     List<User> users = [];
     for(var participant in interview.participants){
       await userCollection.doc(participant).get().then((value) {
@@ -122,15 +130,16 @@ class DatabaseServices{
     for(User user in users){
       for(String interviewId in user.interviewIds){
         await interviewCollection.doc(interviewId).get().then((value) {
-          Interview schedulledInterview = new Interview.fromFireStore(value.data());
-          if(AppUtilityFunctions().intersects(interview.start_time, schedulledInterview.start_time, interview.end_time, schedulledInterview.end_time)){
 
+          Interview schedulledInterview = new Interview.fromFireStore(value.data());
+          if(interview.interview_id != schedulledInterview.interview_id  && AppUtilityFunctions().intersects(interview.start_time, schedulledInterview.start_time, interview.end_time, schedulledInterview.end_time)){
+            print(user.name + "" + schedulledInterview.start_time.toString() + " " + schedulledInterview.end_time.toString() + " " + interview.start_time.toString() + interview.end_time.toString());
             throw  IntervieweeBusyException();
           }
         });
       }
     }
-    if(interview.participants.length <= 3){
+    if(!isUpdating && interview.participants.length <= 3){
       throw  RequiredLengthNotFound();
     }
   }
